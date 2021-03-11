@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/commons::common-head}">
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.css">
+</head>
+<body>
+
+<div class="ui container">
+    <th:block th:replace="~{fragments/commons::header}"></th:block>
+    <main>
+        <h1>Shorten URL</h1>
+        <p th:text="${host}"></p>
+        <div class="ui segment">
+            <form class="ui form">
+                <div class="field">
+                    <label>Enter URL</label>
+                    <div class="ui action input">
+                        <input id="original-url" type="text">
+                        <button id="btn-shorten" class="ui button">Shorten</button>
+                    </div>
+                </div>
+                <input type="hidden" name="host" id="host" th:value="${host}">
+            </form>
+        </div>
+        <div id="results" class="ui divided items">
+
+        </div>
+    </main>
+
+</div>
+
+<th:block th:replace="~{fragments/commons::common-script}"></th:block>
+<script>
+    'use strict';
+
+    $(document).ready(function () {
+
+        $("form").on("submit", () => {
+
+            $("#btn-shorten").addClass("loading");
+
+            // TODO VALIDATION
+            // TODO empty text?
+            // TODO start with http?
+            // TODO start with host?
+            // TODO text length 2000
+
+            const originalUrl = $("#original-url").val();
+            const host = $("#host").val();
+            // REQUEST POST
+            const data = {
+                originalUrl: originalUrl
+            };
+            $.ajax("/api/v1/short-url", {
+                type: "POST",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+            }).done(function (data) {
+                console.log("success", data);
+                const shortLink = host + data.shortKey;
+                $("#results").prepend(`
+                    <div class="item">
+                        <div class="content">
+                            <div class="ui info text" >
+                                <a href='${shortLink}' target='_blank'>${shortLink}</a>
+                            </div>
+                            <div class="meta" >
+                                <a href='${data.originalUrl}' target='_blank'>${data.originalUrl}</a>
+                            </div>
+                        </div>
+                    </div>
+                `)
+
+                // TODO clear text box
+            }).fail(function () {
+                console.log("error");
+
+                // TODO error message
+            }).always(function () {
+                console.log("complete");
+                $("#btn-shorten").removeClass("loading");
+            });
+
+            return false;
+        })
+
+    });
+
+    function validate() {
+        // TODO VALIDATION LINK
+        // length 2000
+        // check host
+        return false;
+    }
+
+</script>
+</body>
+</html>

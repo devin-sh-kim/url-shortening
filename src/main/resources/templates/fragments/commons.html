@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="common-head">
+    <meta charset="UTF-8">
+    <title>Short URL</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+
+</head>
+<body>
+<th:block th:fragment="header">
+    <div class="ui secondary menu">
+        <a class="item">Short URL</a>
+        <a class="item">Stats</a>
+        <a class="item">APIs</a>
+    </div>
+</th:block>
+
+<th:block th:fragment="common-script">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
+</th:block>
+</body>
+</html>

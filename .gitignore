@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+/url_shortening.mv.db
+/url_shortening.trace.db
