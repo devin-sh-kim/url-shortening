@@ -11,11 +11,10 @@
     <th:block th:replace="~{fragments/commons::header}"></th:block>
     <main>
         <h1>Shorten URL</h1>
-        <p th:text="${host}"></p>
         <div class="ui segment">
             <form class="ui form">
                 <div class="field">
-                    <label>Enter URL</label>
+                    <label for="original-url">Enter URL</label>
                     <div class="ui action input">
                         <input id="original-url" type="text">
                         <button id="btn-shorten" class="ui button">Shorten</button>
@@ -24,9 +23,7 @@
                 <input type="hidden" name="host" id="host" th:value="${host}">
             </form>
         </div>
-        <div id="results" class="ui divided items">
-
-        </div>
+        <div id="results" class=""></div>
     </main>
 
 </div>
@@ -35,17 +32,13 @@
 <script>
     'use strict';
 
+    const API_URL = "[(@{/api/v1/short-url})]";
+
     $(document).ready(function () {
 
         $("form").on("submit", () => {
 
             $("#btn-shorten").addClass("loading");
-
-            // TODO VALIDATION
-            // TODO empty text?
-            // TODO start with http?
-            // TODO start with host?
-            // TODO text length 2000
 
             const originalUrl = $("#original-url").val();
             const host = $("#host").val();
@@ -53,33 +46,43 @@
             const data = {
                 originalUrl: originalUrl
             };
-            $.ajax("/api/v1/short-url", {
+            $.ajax(API_URL, {
                 type: "POST",
                 data: JSON.stringify(data),
                 contentType: "application/json",
-            }).done(function (data) {
-                console.log("success", data);
+            }).done((data) => {
                 const shortLink = host + data.shortKey;
                 $("#results").prepend(`
-                    <div class="item">
-                        <div class="content">
-                            <div class="ui info text" >
-                                <a href='${shortLink}' target='_blank'>${shortLink}</a>
-                            </div>
-                            <div class="meta" >
-                                <a href='${data.originalUrl}' target='_blank'>${data.originalUrl}</a>
-                            </div>
+                    <div class="ui info message">
+                        <div class="header">
+                            <a href='${shortLink}' target='_blank'>${shortLink}</a>
                         </div>
+                        <p>
+                            <a href='${data.originalUrl}' target='_blank'>${data.originalUrl}</a>
+                        </p>
                     </div>
                 `)
 
-                // TODO clear text box
-            }).fail(function () {
-                console.log("error");
+                // clear text box
+                $("#original-url").val("");
 
-                // TODO error message
-            }).always(function () {
-                console.log("complete");
+            }).fail((jqXHR) => {
+                const data = jqXHR.responseJSON || {};
+                const message = data.message || "Error";
+
+                // error message
+                $("#results").prepend(`
+                    <div class="ui error message">
+                        <div class="header">
+                            ${message}
+                        </div>
+                        <p>
+                            <span>${originalUrl}</span>
+                        </p>
+                    </div>
+                `)
+
+            }).always(() => {
                 $("#btn-shorten").removeClass("loading");
             });
 
@@ -87,13 +90,6 @@
         })
 
     });
-
-    function validate() {
-        // TODO VALIDATION LINK
-        // length 2000
-        // check host
-        return false;
-    }
 
 </script>
 </body>

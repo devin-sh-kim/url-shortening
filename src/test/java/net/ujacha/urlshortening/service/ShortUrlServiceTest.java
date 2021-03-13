@@ -7,10 +7,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
+@ActiveProfiles("test")
 public class ShortUrlServiceTest {
 
     @Autowired
@@ -96,9 +100,30 @@ public class ShortUrlServiceTest {
     }
 
     @Test
+    public void testNewCreateRequestCount(){
+        // 새로운 URL 이 생성 되면 생성 카운트는 1이어야 한다
+
+        // given
+        String originalUrl = "https://en.wikipedia.org/wiki/URL_shortening?" + System.currentTimeMillis();
+
+        // when
+        ShortUrlDTO shortUrl = shortUrlService.createShortUrl(originalUrl);
+        assertNotNull(shortUrl);
+
+        // then
+        ShortUrl findShortUrl = shortUrlRepository.findByOriginalUrl(originalUrl).orElse(null);
+        assertNotNull(findShortUrl);
+        int createRequestCount = findShortUrl.getCreateRequestCount();
+        System.out.println("createRequestCount = " + createRequestCount);
+
+        assertEquals(1, createRequestCount);
+
+    }
+
+    @Test
     public void testIncCreateRequestCount(){
 
-        // 동일한 URL 의 생성 요청이 발생하면 해당 Short Url의 생성 요청 카운트가 증가한다
+        // 동일한 URL 의 생성 요청이 발생하면 해당 Short Url의 생성 요청 카운트가 1 증가한다
 
         // given
         String originalUrl = "https://en.wikipedia.org/wiki/URL_shortening";
@@ -106,7 +131,8 @@ public class ShortUrlServiceTest {
 
         ShortUrl checkCountBefore = shortUrlRepository.findByOriginalUrl(originalUrl).orElse(null);
         assertNotNull(checkCountBefore);
-        System.out.println("checkCountBefore.getCreateRequestCount() = " + checkCountBefore.getCreateRequestCount());
+        int before = checkCountBefore.getCreateRequestCount();
+        System.out.println("before = " + before);
 
         // when
         ShortUrlDTO createAgain = shortUrlService.createShortUrl(originalUrl);
@@ -115,16 +141,39 @@ public class ShortUrlServiceTest {
         // then
         ShortUrl checkCountAfter = shortUrlRepository.findByOriginalUrl(originalUrl).orElse(null);
         assertNotNull(checkCountAfter);
-        System.out.println("checkCountAfter.getCreateRequestCount() = " + checkCountAfter.getCreateRequestCount());
+        int after = checkCountAfter.getCreateRequestCount();
+        System.out.println("after = " + after);
 
-        assertEquals(checkCountBefore.getCreateRequestCount() + 1, checkCountAfter.getCreateRequestCount());
+        assertEquals(before+ 1, after);
 
     }
 
     @Test
+    public void testNewRedirectRequestCount(){
+        // 새로운 URL 이 생성 되면 변환 카운트는 0이어야 한다
+
+        // given
+        String originalUrl = "https://en.wikipedia.org/wiki/URL_shortening?" + System.currentTimeMillis();
+
+        // when
+        ShortUrlDTO shortUrl = shortUrlService.createShortUrl(originalUrl);
+        assertNotNull(shortUrl);
+
+        // then
+        ShortUrl findShortUrl = shortUrlRepository.findByOriginalUrl(originalUrl).orElse(null);
+        assertNotNull(findShortUrl);
+        int redirectRequestCount = findShortUrl.getRedirectRequestCount();
+        System.out.println("redirectRequestCount = " + redirectRequestCount);
+
+        assertEquals(0, redirectRequestCount);
+
+    }
+
+
+    @Test
     public void testIncRedirectRequestCount(){
 
-        // Short Key 에 대한 변환 요청이 발생하면 해당 Short Url의 변환 요청 카운트가 증가한다
+        // Short Key 에 대한 변환 요청이 발생하면 해당 Short Url의 변환 요청 카운트가 1 증가한다
 
         // given
         String originalUrl = "https://en.wikipedia.org/wiki/URL_shortening";
@@ -132,7 +181,8 @@ public class ShortUrlServiceTest {
 
         ShortUrl checkCountBefore = shortUrlRepository.findByOriginalUrl(originalUrl).orElse(null);
         assertNotNull(checkCountBefore);
-        System.out.println("checkCountBefore.getRedirectRequestCount() = " + checkCountBefore.getRedirectRequestCount());
+        int before = checkCountBefore.getRedirectRequestCount();
+        System.out.println("before = " + before);
 
         // when
         ShortUrlDTO findShortUrl = shortUrlService.getShortUrl(shortUrl.getShortKey());
@@ -141,9 +191,10 @@ public class ShortUrlServiceTest {
         // then
         ShortUrl checkCountAfter = shortUrlRepository.findByOriginalUrl(originalUrl).orElse(null);
         assertNotNull(checkCountAfter);
-        System.out.println("checkCountAfter.getRedirectRequestCount() = " + checkCountAfter.getRedirectRequestCount());
+        int after = checkCountAfter.getRedirectRequestCount();
+        System.out.println("after = " + after);
 
-        assertEquals(checkCountBefore.getRedirectRequestCount() + 1, checkCountAfter.getRedirectRequestCount());
+        assertEquals(before + 1, after);
 
     }
 }

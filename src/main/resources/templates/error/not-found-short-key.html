@@ -8,22 +8,16 @@
 <body>
 
 <div class="ui container">
-    <th:block th:replace="~{fragments/commons::header}"></th:block>
-    <main>
-        <h1>APIs</h1>
+    <main class="error">
+        <h1>미안합니다</h1>
+        <div class="ui error message">최선을 다했지만 요청하신 정보를 찾지 못했습니다.</div>
     </main>
 
 </div>
-
+<!--
+[[${shortKey}]]
+-->
 <th:block th:replace="~{fragments/commons::common-script}"></th:block>
-<script>
-    'use strict';
 
-    $(document).ready(function () {
-
-
-    });
-
-</script>
 </body>
 </html>

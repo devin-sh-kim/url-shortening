@@ -9,16 +9,21 @@
 </head>
 <body>
 <th:block th:fragment="header">
-    <div class="ui secondary menu">
-        <a class="item">Short URL</a>
-        <a class="item">Stats</a>
-        <a class="item">APIs</a>
-    </div>
+    <header>
+        <div class="ui secondary menu">
+            <a class="item" th:href="@{/}"
+               th:classappend="${#request.requestURI == '/' } ? 'active'">Short URL</a>
+            <a class="item" th:href="@{/p/stats}"
+               th:classappend="${#request.requestURI == '/p/stats'} ? 'active'">Stats</a>
+            <a class="item" th:href="@{/p/apis}"
+               th:classappend="${#request.requestURI == '/p/apis'} ? 'active'">APIs</a>
+        </div>
+    </header>
 </th:block>
 
 <th:block th:fragment="common-script">
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
 </th:block>
 </body>
 </html>

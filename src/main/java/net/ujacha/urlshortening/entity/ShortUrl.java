@@ -19,23 +19,17 @@ public class ShortUrl {
     @GeneratedValue(generator = "short_key_seq", strategy = GenerationType.SEQUENCE)
     private Long seq;
 
-//    @Column(nullable = false, unique = true, columnDefinition = "VARCHAR(8)")
-//    private String shortKey;
-
     @Column(nullable = false, unique = true, columnDefinition = "VARCHAR(2000)")
     private String originalUrl;
 
     @Column(nullable = false)
-    private Integer createRequestCount;
+    private Integer createRequestCount = 1;
 
     @Column(nullable = false)
     private Integer redirectRequestCount = 0;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-//    @Column(nullable = false)
-//    private LocalDateTime expireAt;
 
     @Builder
     public ShortUrl(String originalUrl){

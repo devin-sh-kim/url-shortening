@@ -17,9 +17,11 @@ public class ShortUrlService {
 
     private final ShortUrlRepository shortUrlRepository;
 
-    @Value("${short-url.seq.min}")
-    private long offset;
+    @Value("${short-url.codec:0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}")
+    String codec;
 
+    @Value("${short-url.offset:10000000000}")
+    private long offset;
 
     @Transactional
     public ShortUrlDTO createShortUrl(String originalUrl) {
@@ -36,7 +38,7 @@ public class ShortUrlService {
 
         // 2. build short url entity
         shortUrl = new ShortUrl(originalUrl);
-        shortUrlRepository.save(shortUrl);
+        shortUrlRepository.saveAndFlush(shortUrl);
 
         // 3. generate short key
         // 4. return short url
@@ -47,7 +49,7 @@ public class ShortUrlService {
     public ShortUrlDTO getShortUrl(String shortKey) {
 
         // 1. find by short key
-        ShortUrl shortUrl = shortUrlRepository.findById(Base62Support.decode(shortKey, offset)).orElse(null);
+        ShortUrl shortUrl = shortUrlRepository.findById(Base62Support.decode(codec, offset, shortKey)).orElse(null);
 
         // 1.1 not found -> return null
         if (shortUrl == null) {
@@ -66,7 +68,7 @@ public class ShortUrlService {
         if (shortUrl == null) return null;
 
         return ShortUrlDTO.builder()
-                .shortKey(Base62Support.encode(shortUrl.getSeq(), offset))
+                .shortKey(Base62Support.encode(codec, offset, shortUrl.getSeq()))
                 .originalUrl(shortUrl.getOriginalUrl())
                 .build();
     }

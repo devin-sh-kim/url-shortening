@@ -3,6 +3,7 @@ package net.ujacha.urlshortening.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.ujacha.urlshortening.dto.ShortUrlDTO;
+import net.ujacha.urlshortening.exception.NotFoundShortKey;
 import net.ujacha.urlshortening.service.ShortUrlService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +29,13 @@ public class RedirectController {
 
         ShortUrlDTO shortUrl = shortUrlService.getShortUrl(shortKey);
         if(shortUrl == null){
-            return ResponseEntity.notFound().build();
+            throw new NotFoundShortKey(shortKey);
         }
 
         URI targetUri = URI.create(shortUrl.getOriginalUrl());
         return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).location(targetUri).build();
     }
+
+
 
 }

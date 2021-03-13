@@ -1,10 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/commons::common-head}">
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.css">
 </head>
 <body>
 
+<div class="ui container">
+    <th:block th:replace="~{fragments/commons::header}"></th:block>
+    <main id="stats">
+        <h1>Stats</h1>
+        <div class="ui segment">
+            <div class="ui form">
+                <div class="fields">
+                    <div class="four wide field">
+                        <label for="sort">Sort By</label>
+                        <div class="ui selection dropdown">
+                            <input type="hidden" id="sort" value="createdAt">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Sort By</div>
+                            <div class="menu">
+                                <div class="item" data-value="createdAt">Created At</div>
+                                <div class="item" data-value="createRequestCount">Create Requests</div>
+                                <div class="item" data-value="redirectRequestCount0">Redirect Requests</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="four wide field">
+                        <label for="sort">Rows</label>
+                        <div class="ui selection dropdown">
+                            <input type="hidden" id="rows" value="10">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Rows</div>
+                            <div class="menu">
+                                <div class="item" data-value="10">Top 10</div>
+                                <div class="item" data-value="20">Top 20</div>
+                                <div class="item" data-value="50">Top 50</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="six wide field">
+                        <label for="filter">Filter</label>
+                        <input type="text" id="filter" placeholder="Filter Text">
+                    </div>
+                    <div class="two wide field">
+                        <button class="ui fluid button" style="margin-top: 24px" id="btn-apply">적용</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class="ui table">
+            <thead>
+            <tr>
+                <th width="120px">Created At</th>
+                <th>Original Url</th>
+                <th width="120px">Short key</th>
+                <th width="120px">Create Req.</th>
+                <th width="120px">Redirect Req.</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </main>
+
+</div>
+
+<th:block th:replace="~{fragments/commons::common-script}"></th:block>
+<script>
+    'use strict';
+
+    const API_URL = "[(@{/api/v1/stats})]";
+
+    $(document).ready(function () {
+
+        $('.selection.dropdown').dropdown();
+
+        $('#btn-apply').on('click', () => {
+
+            $("#btn-apply").addClass("loading");
+
+            const filters = {
+                sort: $("#sort").val(),
+                rows: $("#rows").val(),
+                filter: encodeURIComponent($("#filter").val())
+            };
+
+            $.ajax(API_URL, {
+                    type: "GET",
+                    data: filters,
+            }).done((data) => {
+                console.log(data);
+            }).fail((jqXHR) => {
+                console.log(jqXHR);
+            }).always(() => {
+                $("#btn-apply").removeClass("loading");
+            })
+
+        })
+
+    });
+
+</script>
 </body>
 </html>
