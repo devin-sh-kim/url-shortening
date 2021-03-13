@@ -59,12 +59,6 @@ public class ApiControllerTest {
 
         // 잘못된 요청일 경우 Http Status Code 400 을 리턴한다
 
-
-        // payload 가 없는 경우
-        requestCreateShoutUrl(null)
-                .andExpect(status().isBadRequest());
-
-
         // payload 에 필수 필드(originalUrl)가 없는경우
         requestCreateShoutUrl("{}")
                 .andExpect(status().isBadRequest());
@@ -90,9 +84,7 @@ public class ApiControllerTest {
     private ResultActions requestCreateShoutUrl(String payload) throws Exception {
         MockHttpServletRequestBuilder post = post("/api/v1/short-url");
 
-        if(payload != null){
-            post.content(payload);
-        }
+        post.content(payload);
 
         return mockMvc.perform(post
                 .contentType(MediaType.APPLICATION_JSON.toString())
