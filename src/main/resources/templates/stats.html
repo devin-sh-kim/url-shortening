@@ -23,7 +23,7 @@
                             <div class="menu">
                                 <div class="item" data-value="createdAt">Created At</div>
                                 <div class="item" data-value="createRequestCount">Create Requests</div>
-                                <div class="item" data-value="redirectRequestCount0">Redirect Requests</div>
+                                <div class="item" data-value="redirectRequestCount">Redirect Requests</div>
                             </div>
                         </div>
                     </div>
@@ -51,19 +51,27 @@
                 </div>
             </div>
         </div>
-        <table class="ui table">
+        <table class="ui table" id="stats-table">
             <thead>
             <tr>
-                <th width="120px">Created At</th>
+                <th width="200px">Created At</th>
                 <th>Original Url</th>
                 <th width="120px">Short key</th>
                 <th width="120px">Create Req.</th>
                 <th width="120px">Redirect Req.</th>
             </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
         </table>
-
+        <input type="hidden" name="host" id="host" th:value="${host}">
     </main>
 
 </div>
@@ -73,7 +81,7 @@
     'use strict';
 
     const API_URL = "[(@{/api/v1/stats})]";
-
+    const TRUNC_SIZE = 30;
     $(document).ready(function () {
 
         $('.selection.dropdown').dropdown();
@@ -83,23 +91,57 @@
             $("#btn-apply").addClass("loading");
 
             const filters = {
+                filter: encodeURIComponent($("#filter").val()),
                 sort: $("#sort").val(),
                 rows: $("#rows").val(),
-                filter: encodeURIComponent($("#filter").val())
             };
 
             $.ajax(API_URL, {
                     type: "GET",
                     data: filters,
             }).done((data) => {
-                console.log(data);
+                // console.log(data);
+
+                const host = $("#host").val();
+
+                $("#stats-table>tbody").empty()
+
+                if(data){
+                    data.forEach(row => {
+
+                        const $th = $(`
+                        <tr>
+                            <td>${moment(row.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
+                            <td><a class="original-url" href='${row.originalUrl}' target="_blank">${row.originalUrl.truncate(TRUNC_SIZE)}</a></td>
+                            <td><a href='${host}${row.shortKey}' target="_blank">${row.shortKey}</a></td>
+                            <td class="right aligned">${row.createRequestCount}</td>
+                            <td class="right aligned">${row.redirectRequestCount}</td>
+                        </tr>
+                        `);
+
+                        if(row.originalUrl.length > TRUNC_SIZE){
+                            $th.find("a.original-url")
+                                .addClass("popup")
+                                .attr("data-tooltip", row.originalUrl)
+                                .attr("data-position", "top left");
+                        }
+
+                        $("#stats-table>tbody").append($th);
+                    });
+                }
+
             }).fail((jqXHR) => {
                 console.log(jqXHR);
+                alert("조회 실패")
             }).always(() => {
                 $("#btn-apply").removeClass("loading");
-            })
+            });
 
         })
+
+        $("a.popup").popup();
+
+        $('#btn-apply').trigger("click");
 
     });
 

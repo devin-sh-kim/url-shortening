@@ -1,28 +1,29 @@
 package net.ujacha.urlshortening.controller;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.ujacha.urlshortening.dto.ShortUrlDTO;
 import net.ujacha.urlshortening.exception.BadRequestException;
-import net.ujacha.urlshortening.payload.ErrorResPayload;
 import net.ujacha.urlshortening.payload.ShortUrlPostReqPayload;
 import net.ujacha.urlshortening.service.ShortUrlService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v1/short-url")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @Slf4j
 public class ApiController {
 
     private final ShortUrlService shortUrlService;
 
-    @PostMapping
+    @PostMapping("short-url")
     public ResponseEntity createShortUrl(@RequestBody ShortUrlPostReqPayload payload) {
 
         // validate
@@ -52,8 +53,20 @@ public class ApiController {
 
         log.debug("shortUrl: {}", shortUrl);
 
-        return ResponseEntity.ok(shortUrl);
+        return ResponseEntity.ok().body(shortUrl);
 
+    }
+
+    @GetMapping("stats")
+    public ResponseEntity getStats(
+            @RequestParam(required = false, defaultValue = "") String filter,
+            @RequestParam(required = false, defaultValue = "createdAt") String sort,
+            @RequestParam(required = false, defaultValue = "10") int rows
+    ) {
+
+        List<ShortUrlDTO> stats = shortUrlService.getShortUrlStats(sort, filter, rows);
+
+        return ResponseEntity.ok(stats);
     }
 
 }

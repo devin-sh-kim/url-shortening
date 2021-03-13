@@ -6,8 +6,15 @@ import net.ujacha.urlshortening.entity.ShortUrl;
 import net.ujacha.urlshortening.repository.ShortUrlRepository;
 import net.ujacha.urlshortening.util.Base62Support;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -71,5 +78,20 @@ public class ShortUrlService {
                 .shortKey(Base62Support.encode(codec, offset, shortUrl.getSeq()))
                 .originalUrl(shortUrl.getOriginalUrl())
                 .build();
+    }
+
+    public List<ShortUrlDTO> getShortUrlStats(String sort, String filter, int rows) {
+
+        PageRequest pageRequest = PageRequest.of(0, rows, Sort.by(Sort.Order.desc(sort)));
+
+        Page<ShortUrl> page = shortUrlRepository.findAllByFilter(filter, pageRequest);
+
+        return page.get().map(shortUrl -> ShortUrlDTO.builder()
+                .shortKey(Base62Support.encode(codec, offset, shortUrl.getSeq()))
+                .originalUrl(shortUrl.getOriginalUrl())
+                .createRequestCount(shortUrl.getCreateRequestCount())
+                .redirectRequestCount(shortUrl.getRedirectRequestCount())
+                .createdAt(shortUrl.getCreatedAt())
+                .build()).collect(Collectors.toList());
     }
 }
