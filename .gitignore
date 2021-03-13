@@ -34,3 +34,4 @@ build/
 
 /url_shortening.mv.db
 /url_shortening.trace.db
+/url_shortening_test.mv.db
