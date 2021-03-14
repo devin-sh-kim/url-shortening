@@ -20,8 +20,8 @@ java -jar -Dspring.profiles.active=init-db url-shortening-0.0.1-SNAPSHOT.jar
 # 이후 실행 시 
 java -jar url-shortening-0.0.1-SNAPSHOT.jar
 
-# 브라우저에서 확인 ([http://localhost:8080](http://localhost:8080))
 
 ```
-
+* 브라우저에서 확인 
+   * [http://localhost:8080](http://localhost:8080)
 
