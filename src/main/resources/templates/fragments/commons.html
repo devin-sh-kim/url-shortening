@@ -15,8 +15,6 @@
                th:classappend="${#request.requestURI == '/' } ? 'active'">Short URL</a>
             <a class="item" th:href="@{/p/stats}"
                th:classappend="${#request.requestURI == '/p/stats'} ? 'active'">Stats</a>
-            <a class="item" th:href="@{/p/apis}"
-               th:classappend="${#request.requestURI == '/p/apis'} ? 'active'">APIs</a>
         </div>
     </header>
 </th:block>

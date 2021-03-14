@@ -24,11 +24,4 @@ public class PageController {
         return "stats";
     }
 
-    @GetMapping("p/apis")
-    public String apisPage() {
-
-        return "apis";
-    }
-
-
 }
